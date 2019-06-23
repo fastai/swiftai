@@ -1,5 +1,4 @@
 import Harebrain
-import Path
 import TensorFlow
 
 let path = downloadImagenette()
@@ -10,8 +9,7 @@ let sld = makeLabeledData(sd, fromFunc: parentLabeler, procLabel: &procLabel)
 let rawData = sld.toDataBunch(itemToTensor: pathsToTensor, labelToTensor: intsToTensor, bs: 128)
 let data = transformData(rawData) { openAndResize(fname: $0, size: 128) }
 let batch = data.train.oneBatch()!
-print(batch.xb.shape)
-print(batch.yb.shape)
+print("x / y batch shape:", batch.xb.shape,batch.yb.shape)
 
 func modelInit() -> XResNet { return xresnet18(cOut: 10) }
 let optFunc: (XResNet) -> StatefulOptimizer<XResNet> = adamOpt(lr: 1e-3, mom: 0.9, beta: 0.99, wd: 1e-2, eps: 1e-4)
