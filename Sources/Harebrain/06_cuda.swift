@@ -4,6 +4,8 @@ file to edit: 06_cuda.ipynb
 
 */
 
+
+
 import Path
 import TensorFlow
 import Python
@@ -30,9 +32,12 @@ public struct CnnModel: Layer {
         }
         linear = FADense<Float>(filters.last!, nOut)
     }
+    // Workaround for TF-603
+    public typealias Input = TF
+    public typealias Output = TF
     
     @differentiable
-    public func call(_ input: TF) -> TF {
-        return input.sequenced(through: convs, pool, linear)
+    public func callAsFunction(_ input: TF) -> TF {
+        return linear.forward(pool.forward(convs(input)))
     }
 }

@@ -4,6 +4,8 @@ file to edit: 03_minibatch_training.ipynb
 
 */
 
+
+
 import Path
 import TensorFlow
 
@@ -28,7 +30,7 @@ public func batchedRanges(start:Int, end:Int, bs:Int) -> UnfoldSequence<Range<In
 
 public struct DataBatch<Inputs: Differentiable & TensorGroup, Labels: TensorGroup>: TensorGroup {
     public var xb: Inputs
-    public var yb: Labels    
+    public var yb: Labels
     
     public init(xb: Inputs, yb: Labels){ (self.xb,self.yb) = (xb,yb) }
 }

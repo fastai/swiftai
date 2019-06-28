@@ -4,6 +4,8 @@ file to edit: 08_data_block.ipynb
 
 */
 
+
+
 import Path
 import TensorFlow
 import Python
@@ -194,10 +196,8 @@ public extension SplitLabeledData {
             elements: LabeledElement(xb: itemToTensor(train.items), yb: labelToTensor(train.labels)))
         let validDs = Dataset<LabeledElement<XB, YB>>(
             elements: LabeledElement(xb: itemToTensor(valid.items), yb: labelToTensor(valid.labels)))
-        return DataBunch(train: trainDs, 
-                         valid: validDs, 
-                         trainLen: train.items.count, 
-                         validLen: valid.items.count,
+        return DataBunch(train: trainDs, valid: validDs, 
+                         trainLen: train.items.count, validLen: valid.items.count,
                          bs: bs)
     }
 }
@@ -207,11 +207,12 @@ public func intsToTensor(_ items: [Int32]) -> Tensor<Int32> { return Tensor<Int3
 
 public func transformData<I,TI,L>(
     _ data: DataBunch<LabeledElement<I,L>>, 
+    nWorkers:Int=4,
     tfmItem: (I) -> TI
 ) -> DataBunch<DataBatch<TI,L>> 
 where I: TensorGroup, TI: TensorGroup & Differentiable, L: TensorGroup{
-    return DataBunch(train: data.train.innerDs.map{ DataBatch(xb: tfmItem($0.xb), yb: $0.yb) },
-                     valid: data.valid.innerDs.map{ DataBatch(xb: tfmItem($0.xb), yb: $0.yb) },
+    return DataBunch(train: data.train.innerDs.map(parallelCallCount: nWorkers){ DataBatch(xb: tfmItem($0.xb), yb: $0.yb) },
+                     valid: data.valid.innerDs.map(parallelCallCount: nWorkers){ DataBatch(xb: tfmItem($0.xb), yb: $0.yb) },
                      trainLen: data.train.dsCount, 
                      validLen: data.valid.dsCount,
                      bs: data.train.bs)
@@ -252,26 +253,4 @@ public func prevPow2(_ x: Int) -> Int {
     var res = 1
     while res <= x { res *= 2 }
     return res / 2
-}
-
-public struct CNNModel: Layer {
-    public var convs: [ConvBN<Float>]
-    public var pool = FAGlobalAvgPool2D<Float>()
-    public var linear: FADense<Float>
-    
-    public init(channelIn: Int, nOut: Int, filters: [Int]){
-        convs = []
-        let (l1,l2) = (channelIn, prevPow2(channelIn * 9))
-        convs = [ConvBN(l1,   l2,   stride: 1),
-                 ConvBN(l2,   l2*2, stride: 2),
-                 ConvBN(l2*2, l2*4, stride: 2)]
-        let allFilters = [l2*4] + filters
-        for i in 0..<filters.count { convs.append(ConvBN(allFilters[i], allFilters[i+1], stride: 2)) }
-        linear = FADense<Float>(filters.last!, nOut)
-    }
-    
-    @differentiable
-    public func call(_ input: TF) -> TF {
-        return input.sequenced(through: convs, pool, linear)
-    }
 }
