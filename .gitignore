@@ -1,4 +1,5 @@
 *.swp
+*~
 Package.resolved
 
 # Xcode
