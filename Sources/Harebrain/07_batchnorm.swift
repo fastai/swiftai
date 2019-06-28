@@ -55,6 +55,10 @@ public protocol Norm: Layer where Input == Tensor<Scalar>, Output == Tensor<Scal
 }
 
 public struct FABatchNorm<Scalar: TensorFlowFloatingPoint>: LearningPhaseDependent, Norm {
+    // TF-603 workaround.
+    public typealias Input = Tensor<Scalar>
+    public typealias Output = Tensor<Scalar>
+
     // Configuration hyperparameters
     @noDerivative var momentum, epsilon: Scalar
     // Running statistics
@@ -173,6 +177,7 @@ public struct TFBatchNorm<Scalar: TensorFlowFloatingPoint>: LearningPhaseDepende
 }
 
 public struct ConvBN<Scalar: TensorFlowFloatingPoint>: FALayer {
+    // TF-603 workaround.
     public typealias Input = Tensor<Scalar>
     public typealias Output = Tensor<Scalar>
     public var conv: FANoBiasConv2D<Scalar>
