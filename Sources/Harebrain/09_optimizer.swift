@@ -4,10 +4,11 @@ file to edit: 09_optimizer.ipynb
 
 */
 
+
+
 import Path
 import TensorFlow
 
-//Expandable enum to have tab-complete and typo-proof for the hyper-param names
 public struct HyperParams {
     public static let lr = "learningRate"
 }
@@ -43,24 +44,21 @@ extension Dictionary where Value == Int{
     }
 }
 
-//Why doesn't this work?
-//extension Dictionary {
-//    public init(constant: Value, keys: Array(Keys)){
-//        self.init(uniqueKeysWithValues: keys.map { ($0, constant) })
-//    }
-//}
+extension Dictionary {
+    public init(constant: Value, keys: [Key]){
+        self.init(uniqueKeysWithValues: keys.map { ($0, constant) })
+    }
+}
 
 public func initState<Model: Layer>(for model: Model, names: [String]) 
 -> [WritableKeyPath<Model.AllDifferentiableVariables, TF>: [String:TF]] {
     return [WritableKeyPath<Model.AllDifferentiableVariables, TF>: [String:TF]](
-        uniqueKeysWithValues: model.variables.keyPaths.map { ($0, [String:TF](
-            uniqueKeysWithValues: names.map { ($0, TF(0))}
-        ))}
-    )
+        constant: [String: TF](constant: TF(0), keys: names),
+        keys: model.variables.keyPaths)
 }
 
 public class StatefulOptimizer<Model: Layer>
-    where Model.AllDifferentiableVariables == Model.CotangentVector {
+    where Model.AllDifferentiableVariables == Model.TangentVector {
     public typealias ModelKeyPath = WritableKeyPath<Model.AllDifferentiableVariables, TF>
     public typealias SplitDict = [ModelKeyPath: Int]
     public var hpGroups: [[String:Float]]
@@ -86,14 +84,14 @@ public class StatefulOptimizer<Model: Layer>
     }
         
     public func update(
-        _ model: inout Model.AllDifferentiableVariables,
-        along direction: Model.CotangentVector
+        _ variables: inout Model.AllDifferentiableVariables,
+        along direction: Model.TangentVector
     ) {
-        for kp in model.keyPaths {
+        for kp in variables.keyPaths {
             var 𝛁p = direction[keyPath: kp]
             var hps = hpGroups[splitDict[kp]!]
-            stats.forEach() { $0.update(&states[kp]!, p: model[keyPath: kp], 𝛁p: 𝛁p, hps: &hps) }
-            steppers.forEach() { $0.update(&model[keyPath: kp], 𝛁p: &𝛁p, state: states[kp]!, hps: &hps) }
+            stats.forEach() { $0.update(&states[kp]!, p: variables[keyPath: kp], 𝛁p: 𝛁p, hps: &hps) }
+            steppers.forEach() { $0.update(&variables[keyPath: kp], 𝛁p: &𝛁p, state: states[kp]!, hps: &hps) }
             hpGroups[splitDict[kp]!] = hps
         }
     }
@@ -275,7 +273,7 @@ public extension StatefulOptimizer {
 }
 
 extension Learner where Opt.Scalar: BinaryFloatingPoint, 
-    Opt.Model.AllDifferentiableVariables == Opt.Model.CotangentVector{
+    Opt.Model.AllDifferentiableVariables == Opt.Model.TangentVector{
     public class ParamScheduler: Delegate {
         public override var order: Int { return 1 }
         public typealias ScheduleFunc = (Float) -> Float
@@ -314,7 +312,7 @@ public func oneCycleSchedulers(_ lrMax: Float, pctStart:Float=0.25, divStart: Fl
 }
 
 extension Learner where Opt.Scalar: BinaryFloatingPoint, 
-    Opt.Model.AllDifferentiableVariables == Opt.Model.CotangentVector{
+    Opt.Model.AllDifferentiableVariables == Opt.Model.TangentVector{
 
     public func addOneCycleDelegates(_ lrMax: Float, pctStart:Float=0.25, divStart: Float = 10, divEnd: Float = 1e5, 
                                moms: (Float,Float,Float) = (0.95,0.85,0.95)) {

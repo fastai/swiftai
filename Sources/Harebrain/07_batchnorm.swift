@@ -4,6 +4,8 @@ file to edit: 07_batchnorm.ipynb
 
 */
 
+
+
 import Path
 import TensorFlow
 import Python
@@ -36,8 +38,8 @@ extension LearningPhaseDependent {
 
     @differentiating(forward)
     func gradForward(_ input: Input) ->
-        (value: Output, pullback: (Self.Output.CotangentVector) ->
-            (Self.CotangentVector, Self.Input.CotangentVector)) {
+        (value: Output, pullback: (Self.Output.TangentVector) ->
+            (Self.TangentVector, Self.Input.TangentVector)) {
         switch Context.local.learningPhase {
         case .training:
             return valueWithPullback(at: input) { $0.forwardTraining ($1) }
@@ -93,7 +95,7 @@ public struct FABatchNorm<Scalar: TensorFlowFloatingPoint>: LearningPhaseDepende
 }
 
 struct BatchNormResult<Scalar : TensorFlowFloatingPoint> : Differentiable{
-    let y, batchMean, batchVariance, reserveSpace1, reserveSpace2: Tensor<Scalar>
+    var y, batchMean, batchVariance, reserveSpace1, reserveSpace2: Tensor<Scalar>
 }
 
 public struct TFBatchNorm<Scalar: TensorFlowFloatingPoint>: LearningPhaseDependent, Norm {
@@ -152,9 +154,9 @@ public struct TFBatchNorm<Scalar: TensorFlowFloatingPoint>: LearningPhaseDepende
     static func _vjpFusedBatchNorm(
         _ x : Tensor<Scalar>, scale: Tensor<Scalar>, offset: Tensor<Scalar>, epsilon: Scalar
     ) -> (BatchNormResult<Scalar>, 
-          (BatchNormResult<Scalar>.CotangentVector) -> (Tensor<Scalar>.CotangentVector, 
-                                                        Tensor<Scalar>.CotangentVector, 
-                                                        Tensor<Scalar>.CotangentVector)) {
+          (BatchNormResult<Scalar>.TangentVector) -> (Tensor<Scalar>.TangentVector, 
+                                                        Tensor<Scalar>.TangentVector, 
+                                                        Tensor<Scalar>.TangentVector)) {
       let bnresult = fusedBatchNorm(x, scale: scale, offset: offset, epsilon: epsilon)
   
         return (
@@ -184,7 +186,7 @@ public struct ConvBN<Scalar: TensorFlowFloatingPoint>: FALayer {
 
     @differentiable
     public func forward(_ input: Tensor<Scalar>) -> Tensor<Scalar> {
-        return norm(conv(input))
+        return norm.forward(conv.forward(input))
     }
 }
 
@@ -202,7 +204,8 @@ public struct CnnModelBN: Layer {
     }
     
     @differentiable
-    public func call(_ input: TF) -> TF {
-        return input.compose(convs, pool, linear)
+    public func callAsFunction(_ input: TF) -> TF {
+        // TODO: Work around https://bugs.swift.org/browse/TF-606
+        return linear.forward(pool.forward(convs(input)))
     }
 }
