@@ -7,7 +7,7 @@ let package = Package(
         .library(name: "Harebrain", targets: ["Harebrain"]),
     ],
   dependencies: [
-    .package(url: "https://github.com/saeta/Just", from: "0.7.2"),
+    .package(url: "https://github.com/saeta/Just", from: "0.7.3"),
     .package(url: "https://github.com/mxcl/Path.swift", .branch("master")),
   ],
   targets: [
