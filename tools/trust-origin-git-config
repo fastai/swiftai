@@ -47,9 +47,9 @@ def write_config():
     cmd = "tools/fastai-nbstripout" if not is_windows else r"python tools\\\\fastai-nbstripout"
     with open(".gitconfig", 'w') as f:
         f.write(f"""# You need to enable this configuration once after checking out the repo
-# for the first time (assuming you checked it out into the harebrain/ dir):
+# for the first time (assuming you checked it out into the swiftai/ dir):
 #
-# cd fastai
+# cd swiftai
 # git config --local include.path ../.gitconfig
 #
 # If you need to disable this instrumentation do:

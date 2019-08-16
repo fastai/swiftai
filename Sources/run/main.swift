@@ -1,4 +1,4 @@
-import Harebrain
+import SwiftAI
 import TensorFlow
 
 let path = downloadImagenette()
