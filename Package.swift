@@ -3,6 +3,9 @@ import PackageDescription
 
 let package = Package(
     name: "Harebrain",
+    platforms: [
+        .macOS(.v10_13),
+    ],
     products: [
         .library(name: "Harebrain", targets: ["Harebrain"]),
     ],
