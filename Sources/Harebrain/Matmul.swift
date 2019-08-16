@@ -27,4 +27,3 @@ public extension StringTensor {
         return Raw.decodeJpeg(contents: self, channels: Int64(channels), dctMethod: "") 
     }
 }
-
