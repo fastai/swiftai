@@ -30,6 +30,6 @@ extension Tensor where Scalar: TensorFlowFloatingPoint {
         let receptiveField = shape[0..<spatialDimCount].contiguousSize
         let fanIn = shape[shape.count - 2] * receptiveField
         let bound = TensorFlow.sqrt(Scalar(3.0)) * gain / TensorFlow.sqrt(Scalar(fanIn))
-        self = bound * (2 * Tensor(randomUniform: shape, generator: &PhiloxRandomNumberGenerator.global) - 1)
+        self = bound * (2 * Tensor(randomUniform: shape) - 1)
     }
 }

@@ -53,33 +53,23 @@ public protocol FALayer: Layer {
 //cell15
 public extension FALayer {
     @differentiable(vjp: callGrad)
+    @differentiable(wrt: (self))
     func callAsFunction(_ input: Input) -> Output {
         let activation = forward(input)
         for d in delegates { d(activation) }
         return activation
     }
        
-    // NOTE: AutoDiff synthesizes a leaking VJP for this, so we define a custom VJP.
-    //    TF-475: https://bugs.swift.org/browse/TF-475
-    // NOTE: If we use `@differentiating`, then there is a linker error. So we use `@differentiable` instead.
-    //    TF-476: https://bugs.swift.org/browse/TF-476
     func callGrad(_ input: Input) ->
         (Output, (Self.Output.TangentVector) -> (Self.TangentVector, Self.Input.TangentVector)) {
         return Swift.valueWithPullback(at: self, input) { (m, i) in m.forward(i) }
     }
     
-    //We also add a default init to our `delegates` variable, so that we don't have to define it each time, as
-    //well as a function to easily add a delegate.
-    //var delegates: [(Output) -> ()] { 
-    //    get { return [] }
-    //    set {}
-    //}
-    
     mutating func addDelegate(_ d: @escaping (Output) -> ()) { delegates.append(d) }
 }
 
-//cell19
 
+//cell19
 @frozen
 public struct FADense<Scalar: TensorFlowFloatingPoint>: FALayer {
     // Note: remove the explicit typealiases after TF-603 is resolved.
@@ -248,7 +238,7 @@ public extension FAConv2D {
 //cell24
 
 @frozen
-public struct FAAvgPool2D<Scalar: TensorFlowFloatingPoint>: FALayer {
+public struct FAAvgPool2D<Scalar: TensorFlowFloatingPoint>: FALayer,ParameterlessLayer {
     // TF-603 workaround.
     public typealias Input = Tensor<Scalar>
     public typealias Output = Tensor<Scalar>
@@ -289,7 +279,7 @@ public struct FAAvgPool2D<Scalar: TensorFlowFloatingPoint>: FALayer {
 //cell25
 
 @frozen
-public struct FAGlobalAvgPool2D<Scalar: TensorFlowFloatingPoint>: FALayer {
+public struct FAGlobalAvgPool2D<Scalar: TensorFlowFloatingPoint>: FALayer,ParameterlessLayer {
     // TF-603 workaround.
     public typealias Input = Tensor<Scalar>
     public typealias Output = Tensor<Scalar>
@@ -304,55 +294,22 @@ public struct FAGlobalAvgPool2D<Scalar: TensorFlowFloatingPoint>: FALayer {
 }
 
 //cell27
-extension Array: Layer where Element: Layer, Element.Input == Element.Output {
-    // Note: remove the explicit typealiases after TF-603 is resolved.
-    public typealias Input = Element.Input
-    public typealias Output = Element.Output
-    
-    @differentiable(vjp: _vjpApplied)
-    public func callAsFunction(_ input: Input) -> Output {
-        var activation = input
-        for layer in self {
-            activation = layer(activation)
-        }
-        return activation
-    }
-    
-    public func _vjpApplied(_ input: Input)
-        -> (Output, (Output.TangentVector) -> (Array.TangentVector, Input.TangentVector))
-    {
-        var activation = input
-        var pullbacks: [(Input.TangentVector) -> (Element.TangentVector, Input.TangentVector)] = []
-        for layer in self {
-            let (newActivation, newPullback) = layer.valueWithPullback(at: activation) { $0($1) }
-            activation = newActivation
-            pullbacks.append(newPullback)
-        }
-        func pullback(_ v: Input.TangentVector) -> (Array.TangentVector, Input.TangentVector) {
-            var activationGradient = v
-            var layerGradients: [Element.TangentVector] = []
-            for pullback in pullbacks.reversed() {
-                let (newLayerGradient, newActivationGradient) = pullback(activationGradient)
-                activationGradient = newActivationGradient
-                layerGradients.append(newLayerGradient)
-            }
-            return (Array.TangentVector(layerGradients.reversed()), activationGradient)
-        }
-        return (activation, pullback)
-    }
-}
+//TODO: uncomment once https://github.com/tensorflow/swift-apis/issues/411 is fixed
+//extension Array: Layer & Module where Element: Module, Element.Input == Element.Output {
+//    // Note: remove the explicit typealiases after TF-603 is resolved.
+//    public typealias Input = Element.Input
+//    public typealias Output = Element.Output
+//
+//    @differentiable
+//    public func callAsFunction(_ input: Input) -> Output {
+//          return self.differentiableReduce(input) { $1($0) }
+//    }
+//}
 
 //cell29
 extension KeyPathIterable {
     public var keyPaths: [WritableKeyPath<Self, Tensor<Float>>] {
         return recursivelyAllWritableKeyPaths(to: Tensor<Float>.self)
-    }
-}
-
-extension Layer {
-    public var variables: AllDifferentiableVariables {
-        get { return allDifferentiableVariables }
-        set { allDifferentiableVariables = newValue }
     }
 }
 

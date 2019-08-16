@@ -100,7 +100,6 @@ public final class Learner<Label: TensorGroup,
     public typealias Data = DataBunch<DataBatch<Input, Label>>
     public typealias Loss = TF
     public typealias Optimizer = Opt
-    public typealias Variables = Model.AllDifferentiableVariables
     public typealias EventHandler = (Learner) throws -> Void
     
     /// A wrapper class to hold the loss function, to work around
@@ -177,7 +176,7 @@ extension Learner {
             return self.lossFunc.f(y, yb)
         }
         for d in delegates { try d.didProduceNewGradient(learner: self) }
-        opt.update(&model.variables, along: self.currentGradient)
+        opt.update(&model, along: self.currentGradient)
     }
     
     private func train(onDataset ds: FADataset<DataBatch<Input, Label>>) throws {
