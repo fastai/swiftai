@@ -78,3 +78,18 @@ The `fit` method will train and validate your model for as many epochs as you re
 Master is currently broken as we wait for two fixes in s4tf:
 - https://github.com/tensorflow/swift-apis/issues/411
 - https://github.com/tensorflow/swift-apis/issues/447
+
+## Docker
+
+A Dockerfile has been created to help spin up a CPU based learning and development environment.
+
+```sh
+# Only Build image
+make
+
+# Build image and run Jupyter
+make jupyter
+
+# Build image and run shell
+make shell
+```
