@@ -24,7 +24,7 @@ public func downloadImagenette(path: Path = dataPath, sz:String="-160") -> Path 
     try! path.mkdir(.p)
     if !file.exists {
         downloadFile(url, dest:(path/"\(fname).tgz").string)
-        _ = "/bin/tar".shell("-xzf", (path/"\(fname).tgz").string, "-C", path.string)
+        _ = "/usr/bin/env".shell("tar", "-xzf", (path/"\(fname).tgz").string, "-C", path.string)
     }
     return file
 }
@@ -205,6 +205,22 @@ public struct LabeledElement<I: TensorGroup, L: TensorGroup>: TensorGroup {
     public init(xb: I, yb: L) {
         (self.xb, self.yb) = (xb, yb)
     }
+    
+    // Explicit implementation to make this struct work well with LazyTensor.
+    // These will be derived automatically in the future.
+    public var _tensorHandles: [_AnyTensorHandle] {
+        xb._tensorHandles + yb._tensorHandles
+    }
+    
+    public init<C: RandomAccessCollection>(
+        _handles: C
+    ) where C.Element: _AnyTensorHandle {
+        let xStart = _handles.startIndex
+        let xEnd = _handles.index(
+            xStart, offsetBy: Int(I._tensorHandleCount))
+        self.xb = I.init(_handles: _handles[xStart..<xEnd])
+        self.yb = L.init(_handles: _handles[xEnd..<_handles.endIndex])
+    }
 }
 
 //cell54
@@ -301,7 +317,6 @@ public struct CNNModel: Layer {
     
     @differentiable
     public func callAsFunction(_ input: TF) -> TF {
-        // TODO: Work around https://bugs.swift.org/browse/TF-606
-        return linear.forward(pool.forward(convs(input)))
+        return linear(pool(convs(input)))
     }
 }
