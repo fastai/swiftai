@@ -75,6 +75,6 @@ The `fit` method will train and validate your model for as many epochs as you re
 
 ## Status
 
-Master is currently broken as we wait for two fixes in s4tf:
-- https://github.com/tensorflow/swift-apis/issues/411
-- https://github.com/tensorflow/swift-apis/issues/447
+Master is currently broken due to the following Swift for TensorFlow issues:
+- https://github.com/tensorflow/swift-apis/issues/456 (cannot jointly update parameters/gradients)
+  - Will be fixed in https://github.com/tensorflow/swift-apis/pull/491.
