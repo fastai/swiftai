@@ -256,13 +256,11 @@ public struct AdamStep: StepDelegate {
     public init() {}
     public func update(_ p: inout TF, 𝛁p: inout TF, state: [String: TF], hps: inout [String:Float]) {
         let step = state[StateKeys.step]!
-        let (mom,damp) = (hps[HyperParams.mom]!,hps[HyperParams.momDamp]!)
-        let debias1 = damp * (1 - pow(mom, step)) / (1 - mom)
-        let num = debias1 * state[StateKeys.avgGrad]!
+        let mom = hps[HyperParams.mom]!
+        let num = state[StateKeys.avgGrad]!
         
-        let (²mom,²damp) = (hps[HyperParams.²mom]!,hps[HyperParams.²momDamp]!)
-        let debias2 = ²damp * (1 - pow(²mom, step)) / (1 - ²mom)
-        let denom = sqrt(state[StateKeys.avgSqr]!/debias2) + hps[HyperParams.eps]!
+        let ²mom = hps[HyperParams.²mom]!
+        let denom = sqrt(state[StateKeys.avgSqr]!) + hps[HyperParams.eps]!
         
         p -= hps[HyperParams.lr]! * num / denom
     }
