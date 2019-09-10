@@ -1,0 +1,27 @@
+name: CI
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v1
+
+    - name: Install build dependencies
+      run: |
+        sudo apt install -y apt-utils clang curl git libblocksruntime-dev libpython-dev libpython3.6 libxml2 python3 python3-pip
+
+    - name: Install Swift Tensorflow
+      run: |
+        curl https://storage.googleapis.com/swift-tensorflow-artifacts/nightlies/latest/swift-tensorflow-DEVELOPMENT-ubuntu18.04.tar.gz > swift.tar.gz
+        mkdir swift
+        tar -C swift -xf swift.tar.gz
+
+    - name: Build SwiftAI
+      run: |
+        export PATH=$(pwd)/swift/usr/bin:${PATH}
+        swift build
+        #swift test ## enable when tests are present
