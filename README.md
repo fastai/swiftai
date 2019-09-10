@@ -73,6 +73,21 @@ try! learner.fit(1)
 
 The `fit` method will train and validate your model for as many epochs as you request.
 
+## Docker
+
+A Dockerfile has been created to help spin up a CPU based learning and development environment.
+
+```sh
+# Only Build image
+make
+
+# Build image and run Jupyter
+make jupyter
+
+# Build image and run shell
+make shell
+```
+
 ## Status
 
 Master is currently working with the latest nightlies toolchain.
