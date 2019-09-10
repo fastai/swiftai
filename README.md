@@ -73,12 +73,6 @@ try! learner.fit(1)
 
 The `fit` method will train and validate your model for as many epochs as you request.
 
-## Status
-
-Master is currently broken as we wait for two fixes in s4tf:
-- https://github.com/tensorflow/swift-apis/issues/411
-- https://github.com/tensorflow/swift-apis/issues/447
-
 ## Docker
 
 A Dockerfile has been created to help spin up a CPU based learning and development environment.
@@ -93,3 +87,7 @@ make jupyter
 # Build image and run shell
 make shell
 ```
+
+## Status
+
+Master is currently working with the latest nightlies toolchain.

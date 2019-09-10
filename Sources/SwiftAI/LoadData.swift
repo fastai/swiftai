@@ -8,7 +8,7 @@ If you edit it, be sure that:
 Run *** when you are done to update the notebooks with your change.
 */
         
-//cell2
+//cell1
 precedencegroup ExponentiationPrecedence {
     associativity: right
     higherThan: MultiplicationPrecedence
@@ -18,12 +18,12 @@ infix operator ** : ExponentiationPrecedence
 precedencegroup CompositionPrecedence { associativity: left }
 infix operator >| : CompositionPrecedence
 
-//cell5
+//cell4
 import Foundation
 import Just
 import Path
 
-//cell7
+//cell6
 public extension String {
     @discardableResult
     func shell(_ args: String...) -> String
@@ -39,7 +39,7 @@ public extension String {
     }
 }
 
-//cell10
+//cell9
 public func downloadFile(_ url: String, dest: String? = nil, force: Bool = false) {
     let dest_name = dest ?? (Path.cwd/url.split(separator: "/").last!).string
     let url_dest = URL(fileURLWithPath: (dest ?? (Path.cwd/url.split(separator: "/").last!).string))
@@ -55,26 +55,26 @@ public func downloadFile(_ url: String, dest: String? = nil, force: Bool = false
     }
 }
 
-//cell13
+//cell12
 import TensorFlow
 
-//cell17
+//cell16
 protocol ConvertibleFromByte: TensorFlowScalar {
     init(_ d:UInt8)
 }
 
-//cell19
+//cell18
 extension Float : ConvertibleFromByte {}
 extension Int32 : ConvertibleFromByte {}
 
-//cell21
+//cell20
 extension Data {
     func asTensor<T:ConvertibleFromByte>() -> Tensor<T> {
         return Tensor(map(T.init))
     }
 }
 
-//cell23
+//cell22
 func loadMNIST<T: ConvertibleFromByte>
             (training: Bool, labels: Bool, path: Path, flat: Bool) -> Tensor<T> {
     let split = training ? "train" : "t10k"
@@ -105,10 +105,10 @@ public func loadMNIST(path:Path, flat:Bool = false)
     )
 }
 
-//cell25
+//cell24
 public let mnistPath = Path.home/".fastai"/"data"/"mnist_tst"
 
-//cell32
+//cell31
 import Dispatch
 
 // ⏰Time how long it takes to run the specified function, optionally taking
@@ -133,7 +133,7 @@ public func time(repeating: Int = 1, _ f: () -> ()) {
           "max: \(times.reduce(times[0], max)) ms")
 }
 
-//cell36
+//cell35
 public extension String {
     func findFirst(pat: String) -> Range<String.Index>? {
         return range(of: pat, options: .regularExpression)
@@ -143,7 +143,7 @@ public extension String {
     }
 }
 
-//cell39
+//cell38
 public func notebookToScript(fname: Path){
     let newname = fname.basename(dropExtension: true)+".swift"
     let url = fname.parent/"FastaiNotebooks/Sources/FastaiNotebooks"/newname
@@ -171,7 +171,7 @@ file to edit: \(fname.lastPathComponent)
     }
 }
 
-//cell41
+//cell40
 public func exportNotebooks(_ path: Path) {
     for entry in try! path.ls()
     where entry.kind == Entry.Kind.file && 
