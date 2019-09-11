@@ -31,7 +31,7 @@ jobs:
         echo "Check we are starting with clean git checkout"
         if [ -n "$(git status -uno -s)" ]; then echo "git status is not clean"; false; fi
         echo "Trying to strip out notebooks"
-        tools/fastai-nbstripout -d dev_nb/*ipynb dev_nb/*/*ipynb dev_course/*/*ipynb
+        tools/fastai-nbstripout -d nbs/*
         echo "Check that strip out was unnecessary"
         git status -s # display the status to see which nbs need cleaning up
         if [ -n "$(git status -uno -s)" ]; then echo -e "!!! Detected unstripped out notebooks\n!!!Remember to run tools/run-after-git-clone"; false; fi
