@@ -47,7 +47,7 @@ jobs:
         export PATH=$(pwd)/swift/usr/bin:${PATH}
         git clone https://github.com/google/swift-jupyter.git
         cd swift-jupyter
-        python register --sys-prefix --swift-toolchain $(pwd)/../swift
+        python register.py --sys-prefix --swift-toolchain $(pwd)/../swift
 
     - name: Diff nbs/module
       run: |
