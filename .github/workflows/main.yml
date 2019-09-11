@@ -52,9 +52,8 @@ jobs:
     - name: Diff nbs/module
       run: |
         export PATH=$(pwd)/swift/usr/bin:${PATH}
-        echo "Diff nbs/module"
-        pushd nbs
-        if [ -n "$(python diff_nb_script.py)" ]; then echo -e "!!! Diff between nbs and scripts\n!!!Remember to run notebook2script.py or script2notebook.py"; false; fi
+        jupyter nbconvert --execute tools/export_import.ipynb
+        if [ -n "$(git status -uno -s)" ]; then echo -e "!!! Detecte changes in notebooks\n!!!Remember to run export_import.ipynb"; false; fi
 
     - name: Build SwiftAI
       run: |
