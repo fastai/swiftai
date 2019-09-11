@@ -11,3 +11,8 @@ jupyter: build
 
 strip:
 	./tools/fastai-nbstripout -d nbs/*
+
+convert:
+	jupyter nbconvert --execute tools/export_import.ipynb
+
+sync: convert strip
