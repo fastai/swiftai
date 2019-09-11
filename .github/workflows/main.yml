@@ -16,7 +16,7 @@ jobs:
 
     - name: Install pip dependencies
       run: |
-        pip install nbformat
+        pip3 install nbformat
 
 
     - name: Install Swift Tensorflow
@@ -41,7 +41,7 @@ jobs:
       run: |
         echo "Diff nbs/module"
         pushd dev
-        if [ -n "$(python diff_nb_script.py)" ]; then echo -e "!!! Diff between nbs and scripts\n!!!Remember to run notebook2script.py or script2notebook.py"; false; fi
+        if [ -n "$(python3 diff_nb_script.py)" ]; then echo -e "!!! Diff between nbs and scripts\n!!!Remember to run notebook2script.py or script2notebook.py"; false; fi
 
     - name: Build SwiftAI
       run: |
