@@ -22,7 +22,7 @@ jobs:
     - name: Install pip dependencies
       run: |
         python --version
-        pip install nbformat
+        pip install nbformat jupyter
 
     - name: Detect unstripped out notebook commits
       run: |
@@ -36,18 +36,25 @@ jobs:
         git status -s # display the status to see which nbs need cleaning up
         if [ -n "$(git status -uno -s)" ]; then echo -e "!!! Detected unstripped out notebooks\n!!!Remember to run tools/run-after-git-clone"; false; fi
 
-    - name: Diff nbs/module
-      run: |
-        echo "Diff nbs/module"
-        pushd nbs
-        if [ -n "$(python diff_nb_script.py)" ]; then echo -e "!!! Diff between nbs and scripts\n!!!Remember to run notebook2script.py or script2notebook.py"; false; fi
-
     - name: Install Swift Tensorflow
       run: |
         curl https://storage.googleapis.com/swift-tensorflow-artifacts/nightlies/latest/swift-tensorflow-DEVELOPMENT-ubuntu18.04.tar.gz > swift.tar.gz
         mkdir swift
         tar -C swift -xf swift.tar.gz
 
+    - name: Install Jupyter Swift Hooks
+      run: |
+        export PATH=$(pwd)/swift/usr/bin:${PATH}
+        git clone https://github.com/google/swift-jupyter.git
+        cd swift-jupyter
+        python register --sys-prefix --swift-toolchain $(PWD)/../swift
+
+    - name: Diff nbs/module
+      run: |
+        export PATH=$(pwd)/swift/usr/bin:${PATH}
+        echo "Diff nbs/module"
+        pushd nbs
+        if [ -n "$(python diff_nb_script.py)" ]; then echo -e "!!! Diff between nbs and scripts\n!!!Remember to run notebook2script.py or script2notebook.py"; false; fi
 
     - name: Build SwiftAI
       run: |
