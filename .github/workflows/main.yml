@@ -12,12 +12,17 @@ jobs:
 
     - name: Install apt dependencies
       run: |
-        sudo apt install -y apt-utils clang curl git libblocksruntime-dev libpython-dev libpython3.6 libxml2 python3 python3-pip
+        sudo apt install -y apt-utils clang curl git libblocksruntime-dev libxml2
+
+    - uses: actions/setup-python@v1
+      with:
+        python-version: '3.6'
+        architecture: 'x64'
 
     - name: Install pip dependencies
       run: |
-        pip3 install nbformat
-
+        python --version
+        pip install nbformat
 
     - name: Install Swift Tensorflow
       run: |
