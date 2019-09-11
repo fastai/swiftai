@@ -193,7 +193,6 @@ public func makeLabeledData<T, PL: Processor>(_ sd: SplitData<T>, fromFunc: (T) 
     return SplitLabeledData(sd, fromFunc: fromFunc, procItem: &pi, procLabel: &procLabel)
 }
 
-
 //cell48
 public func parentLabeler(_ fName: Path) -> String { return fName.parent.basename() }
 

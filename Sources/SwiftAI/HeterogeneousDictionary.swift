@@ -41,7 +41,6 @@ public struct HeterogeneousDictionary {
     }
 }
 
-
 //cell5
 // Common keys
 public struct LearningRate: HetDictKey {
