@@ -24,12 +24,6 @@ jobs:
         python --version
         pip install nbformat
 
-    - name: Install Swift Tensorflow
-      run: |
-        curl https://storage.googleapis.com/swift-tensorflow-artifacts/nightlies/latest/swift-tensorflow-DEVELOPMENT-ubuntu18.04.tar.gz > swift.tar.gz
-        mkdir swift
-        tar -C swift -xf swift.tar.gz
-
     - name: Detect unstripped out notebook commits
       run: |
         echo "Trying to load all notebooks"
@@ -47,6 +41,13 @@ jobs:
         echo "Diff nbs/module"
         pushd dev
         if [ -n "$(python3 diff_nb_script.py)" ]; then echo -e "!!! Diff between nbs and scripts\n!!!Remember to run notebook2script.py or script2notebook.py"; false; fi
+
+    - name: Install Swift Tensorflow
+      run: |
+        curl https://storage.googleapis.com/swift-tensorflow-artifacts/nightlies/latest/swift-tensorflow-DEVELOPMENT-ubuntu18.04.tar.gz > swift.tar.gz
+        mkdir swift
+        tar -C swift -xf swift.tar.gz
+
 
     - name: Build SwiftAI
       run: |
