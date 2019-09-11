@@ -53,7 +53,7 @@ jobs:
       run: |
         export PATH=$(pwd)/swift/usr/bin:${PATH}
         jupyter nbconvert --execute tools/export_import.ipynb
-        if [ -n "$(git status -uno -s)" ]; then echo -e "!!! Detecte changes in notebooks\n!!!Remember to run export_import.ipynb"; false; fi
+        if [ -n "$(git status -uno -s)" ]; then echo -e "!!! Detected changes in notebooks or sources\n!!!Remember to run export_import.ipynb"; false; fi
 
     - name: Build SwiftAI
       run: |
