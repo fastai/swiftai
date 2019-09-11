@@ -39,8 +39,8 @@ jobs:
     - name: Diff nbs/module
       run: |
         echo "Diff nbs/module"
-        pushd dev
-        if [ -n "$(python3 diff_nb_script.py)" ]; then echo -e "!!! Diff between nbs and scripts\n!!!Remember to run notebook2script.py or script2notebook.py"; false; fi
+        pushd nbs
+        if [ -n "$(python diff_nb_script.py)" ]; then echo -e "!!! Diff between nbs and scripts\n!!!Remember to run notebook2script.py or script2notebook.py"; false; fi
 
     - name: Install Swift Tensorflow
       run: |
