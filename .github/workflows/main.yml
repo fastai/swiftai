@@ -1,0 +1,64 @@
+name: CI
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v1
+
+    - name: Install apt dependencies
+      run: |
+        sudo apt install -y apt-utils clang curl git libblocksruntime-dev libxml2
+
+    - uses: actions/setup-python@v1
+      with:
+        python-version: '3.6'
+        architecture: 'x64'
+
+    - name: Install pip dependencies
+      run: |
+        python --version
+        pip install nbformat jupyter
+
+    - name: Detect unstripped out notebook commits
+      run: |
+        echo "Trying to load all notebooks"
+        tools/read-nbs
+        echo "Check we are starting with clean git checkout"
+        if [ -n "$(git status -uno -s)" ]; then echo "git status is not clean"; false; fi
+        echo "Trying to strip out notebooks"
+        make strip
+        echo "Check that strip out was unnecessary"
+        git status -s # display the status to see which nbs need cleaning up
+        if [ -n "$(git status -uno -s)" ]; then echo -e "!!! Detected unstripped out notebooks\n!!!Remember to run tools/run-after-git-clone"; false; fi
+
+    - name: Install Swift Tensorflow
+      run: |
+        curl https://storage.googleapis.com/swift-tensorflow-artifacts/nightlies/latest/swift-tensorflow-DEVELOPMENT-ubuntu18.04.tar.gz > swift.tar.gz
+        mkdir swift
+        tar -C swift -xf swift.tar.gz
+
+    - name: Install Jupyter Swift Hooks
+      run: |
+        export PATH=$(pwd)/swift/usr/bin:${PATH}
+        git clone https://github.com/google/swift-jupyter.git
+        cd swift-jupyter
+        python register.py --sys-prefix --swift-toolchain $(pwd)/../swift
+
+    - name: Diff nbs/module
+      run: |
+        export PATH=$(pwd)/swift/usr/bin:${PATH}
+        make sync
+        git status -s # display the status to see what changed
+        if [ -n "$(git status -uno -s)" ]; then echo -e "!!! Detected changes in notebooks or sources\n!!!Remember to run export_import.ipynb"; false; fi
+        make strip
+
+    - name: Build SwiftAI
+      run: |
+        export PATH=$(pwd)/swift/usr/bin:${PATH}
+        swift build
+        #swift test ## enable when tests are present
