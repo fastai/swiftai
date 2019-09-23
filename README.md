@@ -86,6 +86,9 @@ make jupyter
 
 # Build image and run shell
 make shell
+
+# Sync notebooks to sources (Sources must not have modifications)
+make sync-nbs-to-srcs
 ```
 
 ## Status
