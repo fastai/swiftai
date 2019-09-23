@@ -12,7 +12,8 @@ jupyter: build
 strip:
 	./tools/fastai-nbstripout -d nbs/*
 
-convert:
+convert-nbs-to-srcs:
+	./tools/check-git-modified ./Sources
 	jupyter nbconvert --execute tools/export_import.ipynb
 
-sync: convert strip
+sync: convert-nbs-to-srcs strip
