@@ -16,4 +16,4 @@ convert-nbs-to-srcs:
 	./tools/check-git-modified ./Sources
 	jupyter nbconvert --execute tools/export_import.ipynb
 
-sync: convert-nbs-to-srcs strip
+sync-nbs-to-srcs: convert-nbs-to-srcs strip
