@@ -1,0 +1,10 @@
+#!/usr/bin/env python3
+
+import os
+import sys
+
+path = sys.argv[1]
+res = os.popen(f'git status -uno -s {path}').read()
+if len(res) > 0:
+    print(f"{path} has been modified")
+    exit(1)
