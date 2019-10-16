@@ -52,7 +52,7 @@ jobs:
     - name: Diff nbs/module
       run: |
         export PATH=$(pwd)/swift/usr/bin:${PATH}
-        make sync
+        make sync-nbs-to-srcs
         git status -s # display the status to see what changed
         if [ -n "$(git status -uno -s)" ]; then echo -e "!!! Detected changes in notebooks or sources\n!!!Remember to run export_import.ipynb"; false; fi
         make strip
