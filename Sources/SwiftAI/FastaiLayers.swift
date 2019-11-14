@@ -68,6 +68,7 @@ public extension FALayer {
     mutating func addDelegate(_ d: @escaping (Output) -> ()) { delegates.append(d) }
 }
 
+
 //cell19
 @frozen
 public struct FADense<Scalar: TensorFlowFloatingPoint>: FALayer {

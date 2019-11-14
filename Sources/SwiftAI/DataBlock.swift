@@ -193,6 +193,7 @@ public func makeLabeledData<T, PL: Processor>(_ sd: SplitData<T>, fromFunc: (T) 
     return SplitLabeledData(sd, fromFunc: fromFunc, procItem: &pi, procLabel: &procLabel)
 }
 
+
 //cell48
 public func parentLabeler(_ fName: Path) -> String { return fName.parent.basename() }
 
@@ -258,7 +259,7 @@ where I: TensorGroup, TI: TensorGroup & Differentiable, L: TensorGroup{
 //cell60
 public func openAndResize(fname: StringTensor, size: Int) -> TF{
     let decodedImg = StringTensor(readFile: fname).decodeJpeg(channels: 3)
-    let resizedImg = Tensor<Float>(Raw.resizeBilinear(
+    let resizedImg = Tensor<Float>(_Raw.resizeBilinear(
         images: Tensor<UInt8>([decodedImg]), 
         size: Tensor<Int32>([Int32(size), Int32(size)]))) / 255.0
     return resizedImg.reshaped(to: TensorShape(size, size, 3))
