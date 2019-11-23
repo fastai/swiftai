@@ -1,6 +1,6 @@
 # SwiftAI
 
-Pre-alpha version of Swift for TensorFlow's high-level API, modeled after fastai. The *stable* branch works with v0.5 of [Swift for TensorFlow](https://github.com/tensorflow/swift/blob/master/Installation.md) (s4tf), and the *master* branch follows the nightlies of s4tf (unstable and might be broken, see status below). For older releases, use one of the s4tf_\* branch. To learn the details of what's in this repo, check out lessons 13 and 14 of [course.fast.ai](https://course.fast.ai). Full docs will be added here as things become more stable.
+Pre-alpha version of Swift for TensorFlow's high-level API, modeled after fastai. The *stable* branch works with v0.6 of [Swift for TensorFlow](https://github.com/tensorflow/swift/blob/master/Installation.md) (s4tf), and the *master* branch follows the nightlies of s4tf (unstable and might be broken, see status below). For older releases, use one of the s4tf_\* branch. To learn the details of what's in this repo, check out lessons 13 and 14 of [course.fast.ai](https://course.fast.ai). Full docs will be added here as things become more stable.
 
 You can download and train [imagenette](https://github.com/fastai/imagenette/) by typing `swift run` at the root of this repo.
 
