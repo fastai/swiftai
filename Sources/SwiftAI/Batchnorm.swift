@@ -138,7 +138,7 @@ public struct TFBatchNorm<Scalar: TensorFlowFloatingPoint>: LearningPhaseDepende
         return (input - mean) * normalizer + offset
     }
     
-    @differentiable(wrt: (x, scale, offset), vjp: _vjpFusedBatchNorm)
+    @differentiable(wrt: (x, scale, offset))
     static func fusedBatchNorm(
         _ x : Tensor<Scalar>, scale: Tensor<Scalar>, offset: Tensor<Scalar>, epsilon: Scalar
     ) -> BatchNormResult<Scalar> {
@@ -152,14 +152,18 @@ public struct TFBatchNorm<Scalar: TensorFlowFloatingPoint>: LearningPhaseDepende
         )
     }
 
+    @derivative(of: fusedBatchNorm, wrt: (x, scale, offset))
     static func _vjpFusedBatchNorm(
         _ x : Tensor<Scalar>, scale: Tensor<Scalar>, offset: Tensor<Scalar>, epsilon: Scalar
-    ) -> (BatchNormResult<Scalar>, 
-          (BatchNormResult<Scalar>.TangentVector) -> (Tensor<Scalar>.TangentVector, 
-                                                        Tensor<Scalar>.TangentVector, 
-                                                        Tensor<Scalar>.TangentVector)) {
-      let bnresult = fusedBatchNorm(x, scale: scale, offset: offset, epsilon: epsilon)
-  
+    ) -> (
+        value: BatchNormResult<Scalar>,
+        pullback: (BatchNormResult<Scalar>.TangentVector) -> (
+            Tensor<Scalar>.TangentVector,
+            Tensor<Scalar>.TangentVector,
+            Tensor<Scalar>.TangentVector
+        )
+    ) {
+        let bnresult = fusedBatchNorm(x, scale: scale, offset: offset, epsilon: epsilon)
         return (
             bnresult, 
             {v in 
