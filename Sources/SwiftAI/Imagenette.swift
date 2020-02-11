@@ -33,33 +33,6 @@ public struct ConvLayer: Layer {
 }
 
 //cell27
-//A layer that you can switch off to do the identity instead
-public protocol SwitchableLayer: Layer {
-    associatedtype Input
-    var isOn: Bool { get set }
-    
-    @differentiable func forward(_ input: Input) -> Input
-}
-
-public extension SwitchableLayer {
-    func callAsFunction(_ input: Input) -> Input {
-        return isOn ? forward(input) : input
-    }
-
-    @differentiating(callAsFunction)
-    func gradForward(_ input: Input) ->
-           (value: Input,
-            pullback: (Self.Input.TangentVector) ->
-                                  (Self.TangentVector, Self.Input.TangentVector)) {
-        if isOn {
-            return valueWithPullback(at: input) { $0.forward($1) } 
-        } else {
-            return (input, { (Self.TangentVector.zero, $0) }) 
-        }
-    }
-}
-
-//cell29
 public struct MaybeAvgPool2D: ParameterlessLayer {
     @noDerivative let poolSize: (Int, Int, Int, Int)
     @noDerivative let strides: (Int, Int, Int, Int)
@@ -78,7 +51,7 @@ public struct MaybeAvgPool2D: ParameterlessLayer {
     }
 }
 
-//cell30
+//cell28
 public struct MaybeConv: Layer {
     var conv: ConvLayer
     @noDerivative public var isOn: Bool
@@ -93,7 +66,7 @@ public struct MaybeConv: Layer {
     }
 }
 
-//cell32
+//cell30
 public struct ResBlock: Layer {
     public var convs: [ConvLayer]
     public var idConv: MaybeConv
@@ -120,12 +93,12 @@ public struct ResBlock: Layer {
     
 }
 
-//cell34
+//cell32
 func makeLayer(_ expansion: Int, _ ni: Int, _ nf: Int, _ nBlocks: Int, stride: Int) -> [ResBlock] {
     return Array(0..<nBlocks).map { ResBlock(expansion, $0==0 ? ni : nf, nf, stride: $0==0 ? stride : 1) }
 }
 
-//cell35
+//cell33
 public struct XResNet: Layer {
     public var stem: [ConvLayer]
     public var maxPool = MaxPool2D<Float>(poolSize: (3,3), strides: (2,2), padding: .same)
@@ -149,7 +122,7 @@ public struct XResNet: Layer {
     }
 }
 
-//cell36
+//cell34
 public func xresnet18 (cIn: Int = 3, cOut: Int = 1000) -> XResNet { return XResNet(1, [2, 2, 2, 2], cIn: cIn, cOut: cOut) }
 public func xresnet34 (cIn: Int = 3, cOut: Int = 1000) -> XResNet { return XResNet(1, [3, 4, 6, 3], cIn: cIn, cOut: cOut) }
 public func xresnet50 (cIn: Int = 3, cOut: Int = 1000) -> XResNet { return XResNet(4, [3, 4, 6, 3], cIn: cIn, cOut: cOut) }
