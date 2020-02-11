@@ -262,7 +262,7 @@ public func openAndResize(fname: StringTensor, size: Int) -> TF{
     let resizedImg = Tensor<Float>(_Raw.resizeBilinear(
         images: Tensor<UInt8>([decodedImg]), 
         size: Tensor<Int32>([Int32(size), Int32(size)]))) / 255.0
-    return resizedImg.reshaped(to: TensorShape(size, size, 3))
+    return resizedImg[0]
 }
 
 //cell62
