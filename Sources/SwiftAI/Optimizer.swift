@@ -66,7 +66,7 @@ public func initializeState<Model: Layer>(for model: Model, names: [String])
 }
 
 //cell20
-public class StatefulOptimizer<Model: Layer> {
+public class StatefulOptimizer<Model: Layer>: Optimizer {
     public typealias ModelKeyPath = WritableKeyPath<Model.TangentVector, TF>
     public typealias SplitDict = [ModelKeyPath: Int]
     public var hpGroups: [[String:Float]]
@@ -111,10 +111,8 @@ public class StatefulOptimizer<Model: Layer> {
         }
         model.move(along: params-model.differentiableVectorView)
     }
-}
-
-//cell22
-extension StatefulOptimizer: Optimizer{
+    
+    //OPtimizer conformace can't be in a separate extension cause... Idk
     public var learningRate: Float {
         get { return hpGroups.last![HyperParams.lr]! } 
         set { 
@@ -128,9 +126,17 @@ extension StatefulOptimizer: Optimizer{
             for i in hpGroups.indices {self.hpGroups[i][HyperParams.lr] = newValue[i] } 
         }
     }
+    
+    public required init(copying other: StatefulOptimizer, to device: Device) {
+        hpGroups = other.hpGroups
+        splitDict = other.splitDict
+        states = other.states //TODO, actually copy to device
+        stats = other.stats
+        steppers = other.steppers
+    }
 }
 
-//cell24
+//cell22
 extension StatefulOptimizer{
     public convenience init (for model: __shared Model,
                              steppers: [StepDelegate],
@@ -144,7 +150,7 @@ extension StatefulOptimizer{
     }
 }
 
-//cell26
+//cell24
 public struct SGDStep: StepDelegate {
     public var defaultHPs: [String: Float] { return [HyperParams.lr: 3e-3] }
     public init() {}
@@ -153,7 +159,7 @@ public struct SGDStep: StepDelegate {
     }
 }
 
-//cell32
+//cell30
 public extension HyperParams {
     static let wd = "weightDecay"
 }
@@ -166,7 +172,7 @@ public struct WeightDecay: StepDelegate {
     }
 }
 
-//cell33
+//cell31
 public struct L2Regularization: StepDelegate {
     public var defaultHPs: [String: Float] { return [HyperParams.wd: 0] }
     public init() {}
@@ -175,13 +181,13 @@ public struct L2Regularization: StepDelegate {
     }
 }
 
-//cell35
+//cell33
 //Expandable enum to have tab completes/typo-proof for state variable names.
 public struct StateKeys {
     public static let avgGrad = "averageGrad"
 }
 
-//cell36
+//cell34
 public extension HyperParams {
     static let mom = "momentum"
     static let momDamp = "dampening"
@@ -199,7 +205,7 @@ public struct AverageGrad: StatDelegate {
     }
 }
 
-//cell37
+//cell35
 public struct MomentumStep: StepDelegate {
     public var defaultHPs: [String: Float] = [:]
     public init() {}
@@ -208,7 +214,7 @@ public struct MomentumStep: StepDelegate {
     }
 }
 
-//cell45
+//cell43
 public extension HyperParams {
     static let ²mom = "momentumSquares"
     static let ²momDamp = "dampeningSquares"
@@ -230,7 +236,7 @@ public struct AverageSquaredGrad: StatDelegate {
     }
 }
 
-//cell47
+//cell45
 public extension StateKeys {
     static let step = "stepCount"
 }
@@ -244,13 +250,13 @@ public struct StepCount: StatDelegate {
     }
 }
 
-//cell48
+//cell46
 //public struct Epsilon: HetDictKey { public static var defaultValue: Float = 1e-5 }
 public extension HyperParams {
     static let eps = "epsilon"
 }
 
-//cell49
+//cell47
 public struct AdamStep: StepDelegate {
     public var defaultHPs: [String: Float] { return [HyperParams.eps: 1e-5] }
     public init() {}
@@ -267,7 +273,7 @@ public struct AdamStep: StepDelegate {
     }
 }
 
-//cell60
+//cell58
 public func sgdOpt<Model>(lr: Float, mom: Float = 0.9, wd: Float = 0.0, dampening: Bool = false
                          ) -> ((Model) -> StatefulOptimizer<Model>) {
     var steppers: [StepDelegate] = (mom != 0) ? [MomentumStep()] : [SGDStep()]
@@ -280,7 +286,7 @@ public func sgdOpt<Model>(lr: Float, mom: Float = 0.9, wd: Float = 0.0, dampenin
         return StatefulOptimizer(for: model, steppers: steppers, stats: stats, hps: hps)}
 }
 
-//cell61
+//cell59
 public func adamOpt<Model>(lr: Float, mom: Float = 0.9, beta: Float=0.99, wd: Float = 0.0, eps: Float = 1e-5
                          ) -> ((Model) -> StatefulOptimizer<Model>) {
     var steppers: [StepDelegate] = [AdamStep()]
@@ -295,14 +301,14 @@ public func adamOpt<Model>(lr: Float, mom: Float = 0.9, beta: Float=0.99, wd: Fl
         return StatefulOptimizer(for: model, steppers: steppers, stats: stats, hps: hps)}
 }
 
-//cell64
+//cell62
 public extension StatefulOptimizer {
     func setParam(_ hp: String, _ val: Float) {
         for i in 0..<hpGroups.count { hpGroups[i][hp] = val }
     }
 }
 
-//cell65
+//cell63
 extension Learner where Opt.Scalar: BinaryFloatingPoint {
     public class ParamScheduler: Delegate {
         public override var order: Int { return 1 }
@@ -327,7 +333,7 @@ extension Learner where Opt.Scalar: BinaryFloatingPoint {
     }
 }
 
-//cell67
+//cell65
 public func oneCycleSchedulers(_ lrMax: Float, pctStart:Float=0.25, divStart: Float = 10, divEnd: Float = 1e5, 
                                moms: (Float,Float,Float) = (0.95,0.85,0.95)) 
 -> ((Float) -> Float, (Float) -> Float){
@@ -342,7 +348,7 @@ public func oneCycleSchedulers(_ lrMax: Float, pctStart:Float=0.25, divStart: Fl
     return (lrSched, momSched)
 }
 
-//cell68
+//cell66
 extension Learner where Opt.Scalar: BinaryFloatingPoint {
 
     public func addOneCycleDelegates(_ lrMax: Float, pctStart:Float=0.25, divStart: Float = 10, divEnd: Float = 1e5, 

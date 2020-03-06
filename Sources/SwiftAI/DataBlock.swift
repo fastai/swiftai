@@ -11,7 +11,12 @@ Run *** when you are done to update the notebooks with your change.
 //cell2
 import Path
 import TensorFlow
-import Python
+#if canImport(PythonKit)
+    import PythonKit
+#else
+    import Python
+#endif
+
 
 //cell8
 public let dataPath = Path.home/".fastai"/"data"
@@ -245,7 +250,7 @@ public func intsToTensor(_ items: [Int32]) -> Tensor<Int32> { return Tensor<Int3
 //cell59
 public func transformData<I,TI,L>(
     _ data: DataBunch<LabeledElement<I,L>>, 
-    nWorkers:Int=4,
+    nWorkers:Int=1,
     tfmItem: (I) -> TI
 ) -> DataBunch<DataBatch<TI,L>> 
 where I: TensorGroup, TI: TensorGroup & Differentiable, L: TensorGroup{
