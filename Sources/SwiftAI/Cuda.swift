@@ -11,7 +11,12 @@ Run *** when you are done to update the notebooks with your change.
 //cell2
 import Path
 import TensorFlow
-import Python
+#if canImport(PythonKit)
+    import PythonKit
+#else
+    import Python
+#endif
+
 
 //cell9
 extension Learner {

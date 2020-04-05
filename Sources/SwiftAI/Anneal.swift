@@ -13,7 +13,11 @@ import Path
 import TensorFlow
 
 //cell16
-import Python
+#if canImport(PythonKit)
+    import PythonKit
+#else
+    import Python
+#endif
 public let np = Python.import("numpy")
 public let plt = Python.import("matplotlib.pyplot")
 
